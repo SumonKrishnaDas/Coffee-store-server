@@ -3,7 +3,7 @@ const  cors = require('cors');
 const app = express();
 require('dotenv').config();
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT||10000
 
 app.use(cors());
@@ -45,13 +45,80 @@ res.send(result);
 })
 
 
+
+
+app.get('/coffee/:id',async(req,res)=>{
+
+  const id= req.params.id;
+  const query={_id: new ObjectId(id)}
+  const result = await coffeeColection.findOne(query)
+  res.send(result)
+
+
+
+})
+
 app.post('/coffee',async(req,res)=>{
-
-
 const newCoffee = req.body;
 console.log(newCoffee);
 const result=  await coffeeColection.insertOne(newCoffee)
 res.send(result)
+});
+
+
+app.put('/coffee/:id',async(req,res)=>{
+
+console.log('update sect')
+
+  const   id  = req.params.id;
+
+console.log(id);
+  
+
+  const filter =  {_id: new ObjectId(id)} 
+
+  const options = {upsert:true} ;
+  const updateCoffee = req.body;
+  
+  
+
+  console.log(updateCoffee.name)
+  
+  const Coffee = {
+    
+    $set: {
+      name: updateCoffee.name,
+      quantity: updateCoffee.quantity,
+      supplier: updateCoffee.supplier,
+      taste: updateCoffee.taste,
+      category: updateCoffee.category,
+      details: updateCoffee.details,
+      photo: updateCoffee.photo
+},
+  }
+
+  const result = await coffeeColection.updateOne(filter,Coffee,options);
+
+
+
+
+  res.send(result);
+
+
+
+
+})
+
+
+
+app.delete('/coffee/:id',async(req,res)=>{
+  const id= req.params.id;
+  const query ={_id:new ObjectId(id)}
+  const result= await coffeeColection.deleteOne(query)
+  res.send(result)
+
+
+
 })
 
 
